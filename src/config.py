@@ -20,12 +20,17 @@ class Settings:
 
     @classmethod
     def from_environment(cls) -> "Settings":
-        required = ("DEEPSEEK_API_KEY", "RESEND_API_KEY", "SENDER_EMAIL", "RECIPIENT_EMAIL")
+        # OPENAI_API_KEY is retained only as a temporary compatibility alias for
+        # older workflow files.  Its value is still sent exclusively to DeepSeek.
+        deepseek_api_key = os.getenv("DEEPSEEK_API_KEY", "").strip() or os.getenv("OPENAI_API_KEY", "").strip()
+        required = ("RESEND_API_KEY", "SENDER_EMAIL", "RECIPIENT_EMAIL")
         missing = [name for name in required if not os.getenv(name, "").strip()]
+        if not deepseek_api_key:
+            missing.insert(0, "DEEPSEEK_API_KEY")
         if missing:
             raise ConfigurationError("Missing required environment variables: " + ", ".join(missing))
         return cls(
-            deepseek_api_key=os.environ["DEEPSEEK_API_KEY"],
+            deepseek_api_key=deepseek_api_key,
             deepseek_model=os.getenv("DEEPSEEK_MODEL", "").strip() or "deepseek-v4-flash",
             resend_api_key=os.environ["RESEND_API_KEY"],
             sender_email=os.environ["SENDER_EMAIL"],
