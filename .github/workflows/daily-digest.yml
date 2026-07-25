@@ -1,0 +1,36 @@
+name: Daily Chinese Tech Digest
+
+on:
+  schedule:
+    # GitHub Actions cron is UTC. 00:00 UTC equals 08:00 China Standard Time (UTC+8).
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+      RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+      MAX_ITEMS: "12"
+      REQUEST_TIMEOUT_SECONDS: "20"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Collect and send digest
+        run: python -m src.main
