@@ -35,9 +35,21 @@ def summarize_articles(articles: list[Article], api_key: str, model: str) -> lis
 
 候选新闻：
 """ + json.dumps(payload, ensure_ascii=False)
-    client = OpenAI(api_key=api_key)
-    response = client.responses.create(model=model, instructions=SYSTEM_INSTRUCTIONS, input=prompt)
-    data = _extract_json(response.output_text)
+    # DeepSeek supports the OpenAI-compatible Chat Completions API, not the
+    # OpenAI-specific Responses API used by the previous implementation.
+    client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": SYSTEM_INSTRUCTIONS},
+            {"role": "user", "content": prompt},
+        ],
+        response_format={"type": "json_object"},
+    )
+    content = response.choices[0].message.content if response.choices else None
+    if not content:
+        raise ValueError("DeepSeek response contained no text")
+    data = _extract_json(content)
     by_id = {article.id: article for article in articles}
     items_by_id: dict[str, DigestItem] = {}
     for generated in data.get("items", []) if isinstance(data, dict) else []:
