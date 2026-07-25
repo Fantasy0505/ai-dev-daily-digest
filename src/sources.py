@@ -129,8 +129,8 @@ def fetch_github_repositories(timeout_seconds: int, cutoff: datetime) -> SourceR
         name = repo.get("full_name", "")
         score = relevance_score(f"{name} {description}", description, "GitHub Public Data") + min(repo.get("stargazers_count", 0), 100) // 10
         if score >= 5:
-            excerpt = f"{description} 鐜版湁 {repo.get('stargazers_count', 0)} 涓?star銆?
-            articles.append(Article(f"github-{repo.get('id', index)}", f"GitHub 鐑棬鏂伴」鐩細{name}", repo["html_url"], "GitHub Public Data", created, excerpt, score))
+            excerpt = f"{description} 现有 {repo.get('stargazers_count', 0)} 个 star。"
+            articles.append(Article(f"github-{repo.get('id', index)}", f"GitHub 热门新项目：{name}", repo["html_url"], "GitHub Public Data", created, excerpt, score))
     return SourceResult("GitHub Public Data", articles)
 
 
@@ -152,7 +152,7 @@ def fetch_hacker_news(timeout_seconds: int, cutoff: datetime) -> SourceResult:
         title = clean_text(story["title"])
         score = relevance_score(title, "", "Hacker News") + min(story.get("score", 0), 500) // 25
         if score >= 8:
-            excerpt = f"Hacker News 鐑害 {story.get('score', 0)} 鍒嗭紝{story.get('descendants', 0)} 鏉¤璁恒€?
+            excerpt = f"Hacker News 热度 {story.get('score', 0)} 分，{story.get('descendants', 0)} 条讨论。"
             return Article(f"hn-{story_id}", title, story["url"], "Hacker News", published_at, excerpt, score)
         return None
 
