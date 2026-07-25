@@ -10,7 +10,7 @@ from .models import Article, DigestItem
 
 LOGGER = logging.getLogger(__name__)
 
-SYSTEM_INSTRUCTIONS = """浣犳槸涓ヨ皑鐨勪腑鏂囨妧鏈柊闂荤紪杈戙€傚彧鑳芥牴鎹緭鍏ヤ腑鐨勬爣棰樸€佹潵婧愩€佸彂甯冩椂闂村拰鎽樺綍鍐欎綔锛屼笉鑳借ˉ鍏呮湭缁忔彁渚涚殑鏁版嵁銆佸姛鑳姐€佹椂闂存垨缁撹銆傝緭鍑虹畝娲併€佷笓涓氥€侀潰鍚戞妧鏈粠涓氳€呯殑绠€浣撲腑鏂囥€傛妧鏈悕璇嶅拰椤圭洰鍚嶅彲浠ヤ繚鐣欒嫳鏂囥€傛瘡椤规憳瑕佷负 2 鑷?4 涓畬鏁翠腑鏂囧彞瀛愶紝蹇呴』鍚屾椂璇存竻鍙戠敓浜嗕粈涔堝強鍏堕噸瑕佹€с€傝嫢淇℃伅涓嶈冻锛屽彧濡傚疄璇存槑杈撳叆鍙‘璁ょ殑浜嬪疄銆?""
+SYSTEM_INSTRUCTIONS = """你是严谨的中文技术新闻编辑。只能根据输入中的标题、来源、发布时间和摘录写作，不能补充未经提供的数据、功能、时间或结论。输出简洁、专业、面向技术从业者的简体中文。技术名词和项目名可以保留英文。每项摘要为 2 至 4 个完整中文句子，必须同时说清发生了什么及其重要性。若信息不足，只如实说明输入可确认的事实。"""
 
 
 def _extract_json(text: str) -> object:
@@ -27,12 +27,13 @@ def summarize_articles(articles: list[Article], api_key: str, model: str) -> lis
         "original_title": article.title,
         "source": article.source,
         "published_at_utc": article.published_at.isoformat(),
-        "excerpt": article.excerpt or "锛堟潵婧愭湭鎻愪緵鎽樺綍锛?,
+        "excerpt": article.excerpt or "（来源未提供摘录）",
     } for article in articles]
-    prompt = """璇蜂负浠ヤ笅宸叉牳楠屽€欓€夋柊闂荤敓鎴愭憳瑕併€傛瘡涓€涓緭鍏?id 閮藉繀椤绘伆濂界敓鎴愪竴椤广€傚彧杩斿洖鍚堟硶 JSON锛屼笉瑕?Markdown 鎴栧叾浠栨枃瀛楋紝鏍煎紡蹇呴』鏄細
-{"items":[{"id":"杈撳叆涓殑 id","chinese_title":"涓枃鏍囬","summary":"2-4 鍙ヤ腑鏂囨憳瑕?,"tags":["AI"]}]}
-鏍囩浠?AI銆佸紑婧愩€佺紪绋嬨€佸畨鍏ㄣ€佺‖浠躲€佸紑鍙戣€呭伐鍏枫€佷簯鍘熺敓銆佽涓?涓€夋嫨 1-3 涓€備笉瑕佽繑鍥炰换浣曟湭鍦ㄨ緭鍏ヤ腑鍑虹幇鐨?id锛屼篃涓嶈鍐欓摼鎺ユ垨鏉ユ簮瀛楁銆?
-鍊欓€夋柊闂伙細
+    prompt = """请为以下已核验候选新闻生成摘要。每一个输入 id 都必须恰好生成一项。只返回合法 JSON，不要 Markdown 或其他文字，格式必须是：
+{"items":[{"id":"输入中的 id","chinese_title":"中文标题","summary":"2-4 句中文摘要","tags":["AI"]}]}
+标签从 AI、开源、编程、安全、硬件、开发者工具、云原生、行业 中选择 1-3 个。不要返回任何未在输入中出现的 id，也不要写链接或来源字段。
+
+候选新闻：
 """ + json.dumps(payload, ensure_ascii=False)
     client = OpenAI(api_key=api_key)
     response = client.responses.create(model=model, instructions=SYSTEM_INSTRUCTIONS, input=prompt)
@@ -56,8 +57,8 @@ def summarize_articles(articles: list[Article], api_key: str, model: str) -> lis
     return [items_by_id.get(article.id, DigestItem(
         article=article,
         chinese_title=article.title,
-        summary=article.excerpt or "璇ユ潯鐩殑鍘熷鏉ユ簮鏈彁渚涜冻澶熸憳瑕侊紱璇锋墦寮€鍘熸枃鏍搁獙璇︽儏銆?,
-        tags=["鎶€鏈姩鎬?],
+        summary=article.excerpt or "该条目的原始来源未提供足够摘要；请打开原文核验详情。",
+        tags=["技术动态"],
     )) for article in articles]
 
 
@@ -67,6 +68,6 @@ def fallback_items(articles: list[Article]) -> list[DigestItem]:
     return [DigestItem(
         article=article,
         chinese_title=article.title,
-        summary=article.excerpt or "璇ユ潯鐩殑鍘熷鏉ユ簮鏈彁渚涜冻澶熸憳瑕侊紱璇锋墦寮€鍘熸枃鏍搁獙璇︽儏銆?,
-        tags=["鎶€鏈姩鎬?],
+        summary=article.excerpt or "该条目的原始来源未提供足够摘要；请打开原文核验详情。",
+        tags=["技术动态"],
     ) for article in articles]
