@@ -19,9 +19,9 @@ def main() -> int:
         articles = collect_articles(settings.timeout_seconds, settings.max_items)
         logging.info("Selected %d articles for the digest", len(articles))
         try:
-            items = summarize_articles(articles, settings.openai_api_key, settings.openai_model)
+            items = summarize_articles(articles, settings.deepseek_api_key, settings.deepseek_model)
         except Exception:
-            logging.exception("OpenAI summarization failed; sending source-derived fallback")
+            logging.exception("DeepSeek summarization failed; sending source-derived fallback")
             items = fallback_items(articles)
         today = datetime.now(CST).strftime("%Y-%m-%d")
         send_email(
