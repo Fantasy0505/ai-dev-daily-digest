@@ -27,6 +27,8 @@
 | `RECIPIENT_EMAIL` | 是 | 你的微软收件邮箱，例如 `name@outlook.com`。 |
 | `DEEPSEEK_MODEL` | 否 | 覆盖默认模型；未配置时使用 `deepseek-v4-flash`。请填你账户可用的模型。 |
 
+> 兼容说明：如果仓库 Actions 页面仍显示旧的 `OPENAI_API_KEY` 变量，请先把 **DeepSeek 的密钥**保存为同名 Secret `OPENAI_API_KEY`（替换旧 OpenAI 值）。程序会把它仅作为 DeepSeek 密钥使用；工作流更新后可改回标准的 `DEEPSEEK_API_KEY`。
+
 3. 在 Resend 中添加并验证你的发件域名，然后按其 DNS 指引添加 SPF/DKIM 记录。生产环境中，`SENDER_EMAIL` 必须使用该已验证域名；否则 Resend 会拒绝发送或只允许受限的测试收件人。
 4. 打开仓库的 **Actions** 页面，选择 **Daily Chinese Tech Digest**，点击 **Run workflow** 测试。先确认邮件能到达 Outlook，再等待定时任务。
 
