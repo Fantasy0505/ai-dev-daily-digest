@@ -10,8 +10,8 @@ class ConfigurationError(RuntimeError):
 
 @dataclass(frozen=True)
 class Settings:
-    openai_api_key: str
-    openai_model: str
+    deepseek_api_key: str
+    deepseek_model: str
     resend_api_key: str
     sender_email: str
     recipient_email: str
@@ -20,13 +20,13 @@ class Settings:
 
     @classmethod
     def from_environment(cls) -> "Settings":
-        required = ("OPENAI_API_KEY", "RESEND_API_KEY", "SENDER_EMAIL", "RECIPIENT_EMAIL")
+        required = ("DEEPSEEK_API_KEY", "RESEND_API_KEY", "SENDER_EMAIL", "RECIPIENT_EMAIL")
         missing = [name for name in required if not os.getenv(name, "").strip()]
         if missing:
             raise ConfigurationError("Missing required environment variables: " + ", ".join(missing))
         return cls(
-            openai_api_key=os.environ["OPENAI_API_KEY"],
-            openai_model=os.getenv("OPENAI_MODEL", "").strip() or "gpt-4.1-mini",
+            deepseek_api_key=os.environ["DEEPSEEK_API_KEY"],
+            deepseek_model=os.getenv("DEEPSEEK_MODEL", "").strip() or "deepseek-v4-flash",
             resend_api_key=os.environ["RESEND_API_KEY"],
             sender_email=os.environ["SENDER_EMAIL"],
             recipient_email=os.environ["RECIPIENT_EMAIL"],
