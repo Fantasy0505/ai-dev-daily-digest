@@ -15,7 +15,7 @@ def _e(value: str) -> str:
 
 
 def render_email(items: list[DigestItem]) -> str:
-    date = datetime.now(CST).strftime("%Y 骞?%m 鏈?%d 鏃?)
+    date = datetime.now(CST).strftime("%Y 年 %m 月 %d 日")
     cards: list[str] = []
     for item in items:
         article = item.article
@@ -28,28 +28,29 @@ def render_email(items: list[DigestItem]) -> str:
   <div style="margin-bottom:8px">{tags}</div>
   <h2 style="font-size:19px;line-height:1.45;margin:0 0 9px;color:#111827"><a href="{_e(article.url)}" style="color:#155eef;text-decoration:none">{_e(item.chinese_title)}</a></h2>
   <p style="font-size:15px;line-height:1.75;margin:0 0 10px;color:#374151">{_e(item.summary)}</p>
-  <p style="font-size:13px;line-height:1.5;margin:0;color:#6b7280">鏉ユ簮锛?a href="{_e(article.url)}" style="color:#4b5563">{_e(article.source)}</a> 路 鍙戝竷浜?{published}锛堝寳浜椂闂达級</p>
+  <p style="font-size:13px;line-height:1.5;margin:0;color:#6b7280">来源：<a href="{_e(article.url)}" style="color:#4b5563">{_e(article.source)}</a> · 发布于 {published}（北京时间）</p>
 </article>''')
     if not cards:
-        body = '<p style="font-size:15px;line-height:1.7;color:#374151">杩囧幓 24 灏忔椂鍐咃紝娌℃湁鎵惧埌瓒冲鍙俊涓斾笌涓婚鐩稿叧鐨勫叕寮€鎶ラ亾銆傛湰鏈熶笉琛ュ厖鎴栫寽娴嬪唴瀹广€?/p>'
-        overview = "浠婃棩鏆傛棤杈惧埌鏀跺綍鏍囧噯鐨勬妧鏈儹鐐广€?
+        body = '<p style="font-size:15px;line-height:1.7;color:#374151">过去 24 小时内，没有找到足够可信且与主题相关的公开报道。本期不补充或猜测内容。</p>'
+        overview = "今日暂无达到收录标准的技术热点。"
     else:
         body = "".join(cards)
-        overview = f"杩囧幓 24 灏忔椂鍏辩瓫閫夊嚭 {len(cards)} 鏉″€煎緱鎶€鏈粠涓氳€呭叧娉ㄧ殑鍔ㄦ€侊紝娑电洊 AI銆佸紑婧愩€佺紪绋嬩笌寮€鍙戣€呭伐鍏枫€?
+        overview = f"过去 24 小时共筛选出 {len(cards)} 条值得技术从业者关注的动态，涵盖 AI、开源、编程与开发者工具。"
     return f'''<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;background:#f3f4f6;font-family:Arial,'Microsoft YaHei',sans-serif;color:#111827">
 <main style="max-width:700px;margin:0 auto;background:#fff;padding:32px 30px">
   <header style="border-bottom:3px solid #155eef;padding-bottom:20px">
-    <p style="font-size:13px;color:#6b7280;margin:0 0 8px">{date} 路 姣忔棩瀹氭椂鎺ㄩ€?/p>
-    <h1 style="font-size:28px;margin:0;color:#111827">AI 涓庡紑鍙戣€呯儹鐐规棩鎶?/h1>
+    <p style="font-size:13px;color:#6b7280;margin:0 0 8px">{date} · 每日定时推送</p>
+    <h1 style="font-size:28px;margin:0;color:#111827">AI 与开发者热点日报</h1>
   </header>
   <section style="background:#eff6ff;padding:16px 18px;margin:24px 0;border-radius:8px">
-    <strong style="font-size:15px">浠婃棩閫熻</strong><p style="font-size:14px;line-height:1.65;margin:7px 0 0;color:#374151">{overview}</p>
+    <strong style="font-size:15px">今日速览</strong><p style="font-size:14px;line-height:1.65;margin:7px 0 0;color:#374151">{overview}</p>
   </section>
   {body}
   <footer style="padding-top:22px;color:#6b7280;font-size:12px;line-height:1.65">
-    鏉ユ簮璇存槑锛氬唴瀹逛粎鍩轰簬鍏紑 RSS銆丟itHub 鍏叡鏁版嵁涓?Hacker News 鐨勮繎 24 灏忔椂鏉＄洰鏁寸悊锛涙瘡鏉″潎闄勫師鏂囬摼鎺ャ€傛憳瑕佺敱妯″瀷鏍规嵁宸叉彁渚涚殑鏍囬鍜屾憳褰曠敓鎴愶紝寤鸿鐐瑰嚮鍘熸枃鏍搁獙瀹屾暣涓婁笅鏂囥€?  </footer>
+    来源说明：内容仅基于公开 RSS、GitHub 公共数据与 Hacker News 的近 24 小时条目整理；每条均附原文链接。摘要由模型根据已提供的标题和摘录生成，建议点击原文核验完整上下文。
+  </footer>
 </main></body></html>'''
 
 
