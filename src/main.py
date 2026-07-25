@@ -28,7 +28,7 @@ def main() -> int:
             api_key=settings.resend_api_key,
             sender=settings.sender_email,
             recipient=settings.recipient_email,
-            subject=f"AI 涓庡紑鍙戣€呯儹鐐规棩鎶ワ綔{today}",
+            subject=f"AI 与开发者热点日报｜{today}",
             html_body=render_email(items),
             timeout_seconds=settings.timeout_seconds,
         )
