@@ -1,0 +1,1 @@
+"""Daily Chinese technology digest."""
